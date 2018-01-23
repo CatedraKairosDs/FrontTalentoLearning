@@ -39,8 +39,11 @@
   },
   "dependencies": {
     "babel-loader": "^7.0.0",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "bootstrap": "^4.0.0-beta.3",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
+    "react-router-dom": "^4.2.2",
+    "reactstrap": "^5.0.0-alpha.4"
   },
   "main": "server.js"
 }

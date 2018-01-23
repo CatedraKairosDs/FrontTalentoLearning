@@ -1,6 +1,7 @@
 // Application entrypoint.
 
 // Load up the application styles
+import Bootstrap from '../node_modules/bootstrap/dist/css/bootstrap.css';
 require("../styles/application.scss");
 
 // Render the top-level React component
