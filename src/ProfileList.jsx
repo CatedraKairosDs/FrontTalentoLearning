@@ -26,7 +26,6 @@ export default class ProfileList extends React.Component {
         if (this.props.profiles.length === 0) {
             return(
                 <div style={{width: '45%'}}>
-                    <p>No hay visitas con las opciones seleccionadas...</p>
                 </div>
             );
         } else {

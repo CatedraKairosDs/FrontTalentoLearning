@@ -41,7 +41,6 @@ export default class ProfileBig extends React.Component {
     }
 
     togglePuesto() {
-        console.log("Toggle Puesto");
         this.setState({
             dropdownPuestoOpen: !this.state.dropdownPuestoOpen,
         });
@@ -71,7 +70,8 @@ export default class ProfileBig extends React.Component {
         }
         profile.label = this.state.labelSelected === "" ? this.props.profile.label : realLabel;
         profile.puesto = this.state.puestoSelected === "" ? this.props.profile.puesto : this.state.puestoSelected;
-        let comment = document.getElementById('comment').innerText;
+        let comment = document.getElementById('comment').value;
+        console.log(comment);
         profile.comment = '"'+comment+'"';
         this.props.saveEdit(profile);
     }
@@ -84,7 +84,6 @@ export default class ProfileBig extends React.Component {
         if (this.props.profile === "") {
             return (
                 <div style={{width: '100%'}}>
-                    <p>Seleccione un perfil</p>
                 </div>
             )
         } else {
@@ -153,7 +152,7 @@ export default class ProfileBig extends React.Component {
                 return (
                     <div style={{display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginTop: '2.8%', borderStyle: 'solid', borderColor: 'orange', borderRadius: '5px'}}>
                         <div style={{display: 'flex', flexDirection: 'column', marginLeft: '2%', width: '65%', fontFamily: 'Sans-serif'}}>
-                            <div ><br/><strong>Nombre </strong>{this.props.profile.name}</div>
+                            <div><br/><strong>Nombre </strong>{this.props.profile.name}</div>
                             <div><br/><strong>Puesto </strong>{this.props.profile.puesto}</div>
                             <div><br/><strong>Label </strong>{this.props.profile.label}</div>
                             <div><br/><strong>Comentario </strong>{this.props.profile.comment}</div>
@@ -162,7 +161,7 @@ export default class ProfileBig extends React.Component {
                         </div>
                         <div style={{display: 'flex', flexDirection: 'column', width: '32%'}}>
                             <br/>
-                            <button style={{backgroundColor: 'red', height: '5%', width: '70%', borderRadius: '5px', color: 'white', fontSize: '14px'}} onClick={this.delete}>Borrar</button>
+                            <button style={{height: '5%', width: '70%', borderRadius: '5px', fontSize: '14px'}} onClick={this.delete}>Borrar</button>
                             <br/>
                             <button style={{height: '5%', width: '70%', borderRadius: '5px', fontSize: '14px'}} onClick={this.edit}>Editar</button>
                         </div>

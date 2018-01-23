@@ -2,19 +2,25 @@ import React from 'react';
 import ProfileList from './ProfileList.jsx';
 import Filter from './Filter.jsx';
 import ProfileBig from './ProfileBig.jsx';
+import { Alert } from 'reactstrap';
 
 class App extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            profiles: [],
+            profiles: "",
             profile: "",
             page: 1,
             params: "",
             totalPages: "",
             edit: false,
+            noProfiles: false,
+            visible: false,
+            alerMessage: "",
+            color: "primary",
         };
+        this.onDismiss = this.onDismiss.bind(this);
         this.search = this.search.bind(this);
         this.onClick = this.onClick.bind(this);
         this.nextPage = this.nextPage.bind(this);
@@ -28,14 +34,24 @@ class App extends React.Component {
     render() {
         return (
           <div style={{height: '100%'}}>
-              <h1>Talento Learning</h1>
+              <h1 style={{textAlign: 'center', marginTop: '2%', color: 'orange'}}>Talento Learning</h1>
               <Filter search={this.search}/>
-              <div style={{display: 'flex', flexDirection: 'row', width: '98%', height: '90%', marginLeft: '1%'}}>
+                  <Alert color="primary" isOpen={this.state.visible} toggle={this.onDismiss} color={this.state.color}>
+                      {this.state.alerMessage}
+                  </Alert>
+              <div style={{display: 'flex', flexDirection: 'row', width: '98%', height: '90%', marginLeft: '1%', overflowY: 'scroll'}}>
                   <ProfileList profiles={this.state.profiles} onClick={this.onClick} nextPage={this.nextPage} previousPage={this.previousPage} page={this.state.page} totalPages={this.state.totalPages}/>
                   <ProfileBig profile={this.state.profile} delete={this.delete} edit={this.edit} editEnabled={this.state.edit} saveEdit={this.saveEdit} cancelEdit={this.cancelEdit}/>
               </div>
           </div>
       );
+    }
+
+    onDismiss() {
+        this.setState({
+            visible: false,
+            color: "primary",
+        });
     }
 
     search(params, page) {
@@ -47,11 +63,25 @@ class App extends React.Component {
             if(req.readyState === 4) {
                 if(req.status === 200) {
                     let profiles = JSON.parse(req.response).data;
-                    let totalPages = JSON.parse(req.response).meta.totalPages;
+                    if (profiles.length === 0) {
+                        this.setState({
+                          visible: true,
+                          alerMessage: "No hay visitas con las opciones seleccionadas",
+                          profiles: [],
+                        });
+                    } else {
+                        let totalPages = JSON.parse(req.response).meta.totalPages;
+                        this.setState({
+                            profiles: profiles,
+                            params: params,
+                            totalPages: totalPages,
+                        });
+                    }
+                } else {
                     this.setState({
-                        profiles: profiles,
-                        params: params,
-                        totalPages: totalPages,
+                        visible: true,
+                        alerMessage: "Error en la descarga",
+                        color: "danger",
                     });
                 }
             }
@@ -89,13 +119,19 @@ class App extends React.Component {
         req.onreadystatechange = () => {
             if(req.readyState === 4) {
                 if(req.status === 200) {
-                    this.search(this.state.params, this.state.page);
                     this.setState({
                         profile: "",
+                        visible: true,
+                        alerMessage: "Perfil borrado correctamente",
+                        color: "success",
                     });
-                    alert("Perfil borrado correctamente");
+                    this.search(this.state.params, this.state.page);
                 } else {
-                    alert("El perfil no se ha podido borrar");
+                    this.setState({
+                        visible: true,
+                        alerMessage: "No se ha podido eliminar el perfil",
+                        color: "danger",
+                    });
                 }
             }
         }
@@ -122,12 +158,14 @@ class App extends React.Component {
                     this.setState({
                         edit: false,
                         profile: profile,
+                        visible: true,
+                        alerMessage: "Perfil actualizado correctamente",
                     });
-                    alert("Perfil actualizado correctamente");
                 } else {
-                    alert("El perfil no se ha podido actualizar");
                     this.setState({
                       edit: false,
+                      visible: true,
+                      alerMessage: "Ha habido un error actualizando el perfil",
                     });
                 }
             }
