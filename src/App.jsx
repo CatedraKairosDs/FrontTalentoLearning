@@ -64,7 +64,11 @@ class App extends React.Component {
         req.onreadystatechange = () => {
             if(req.readyState === 4) {
                 if(req.status === 200) {
-                    let profiles = labeled ? JSON.parse(req.response).data : JSON.parse(req.response).allUnlabeledProfiles;
+                    if (!labeled) {
+                        labeled = this.state.labeled;
+                    }
+                    let profiles = this.state.labeled ? JSON.parse(req.response).data : JSON.parse(req.response).allUnlabeledProfiles;
+                    console.log(profiles);
                     if (profiles.length === 0) {
                         this.setState({
                           visible: true,
@@ -76,7 +80,7 @@ class App extends React.Component {
                         let totalPages = labeled ? JSON.parse(req.response).meta.totalPages: '0';
                         this.setState({
                             profiles: profiles,
-                            url: url,
+                            url: urlAux,
                             totalPages: totalPages,
                             profile: "",
                             labeled: labeled,
