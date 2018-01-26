@@ -7,13 +7,17 @@ export default class Filter extends React.Component {
         this.search = this.search.bind(this);
         this.togglePuesto = this.togglePuesto.bind(this);
         this.toggleLabel = this.toggleLabel.bind(this);
+        this.toggleDB = this.toggleDB.bind(this);
         this.selectPuesto = this.selectPuesto.bind(this);
         this.selectLabel = this.selectLabel.bind(this);
+        this.selectDB = this.selectDB.bind(this);
         this.state={
             dropdownLabelOpen: false,
             dropdownPuestoOpen: false,
+            dropdownDBOpen: false,
             puestoSelected: "",
             labelSelected: "",
+            dBSelected: "",
         }
     }
 
@@ -40,8 +44,31 @@ export default class Filter extends React.Component {
 
     selectLabel(event) {
         this.setState({
-            dropdownLabelOpen: this.state.dropdownLabelOpen,
+            dropdownLabelOpen: !this.state.dropdownLabelOpen,
             labelSelected: event.target.innerText,
+        });
+    }
+
+    toggleDB() {
+        document.getElementById('checkDB').checked = true;
+        this.setState({
+            dropdownDBOpen: !this.state.dropdownDBOpen,
+        });
+    }
+
+    selectDB(event) {
+        if (event.target.innerText === "Sin etiquetado") {
+            document.getElementById('checkLabel').checked = false;
+            document.getElementById('checkLabel').disabled = true;
+            document.getElementById('profileJobCheckBox').checked = false;
+            document.getElementById('profileJobCheckBox').disabled = true;
+        } else {
+            document.getElementById('checkLabel').disabled = false;
+            document.getElementById('profileJobCheckBox').disabled = false;
+        }
+        this.setState({
+            dropdownDBOpen: !this.state.dropdownDBOpen,
+            dBSelected: event.target.innerText,
         });
     }
 
@@ -49,7 +76,15 @@ export default class Filter extends React.Component {
         let params="?";
         let nameCheck = document.getElementById('profileNameCheckBox');
         let jobCheck = document.getElementById('profileJobCheckBox');
-        let checkAccept = document.getElementById('checkLabel');
+        let checkLabel = document.getElementById('checkLabel');
+        let checkDB = document.getElementById('checkDB');
+
+        let url = "https://34.248.142.102/api-linkedin/v1/profiles";
+        let labeled = (this.state.dBSelected === "Con etiquetado");
+
+        if (checkDB.checked) {
+            url = this.state.dBSelected === "Sin etiquetado" ? "https://34.248.142.102/api-linkedin/v1/unlabeledProfiles" : "https://34.248.142.102/api-linkedin/v1/profiles";
+        }
 
         let profileName = document.getElementById('profileName').value;
 
@@ -67,9 +102,11 @@ export default class Filter extends React.Component {
                 realLabel = "refuse";
                 break;
         }
-        params += checkAccept.checked ? 'label='+realLabel+'&' : '';
-
-        this.props.search(params);
+        if (labeled) {
+            params += checkLabel.checked ? 'label='+realLabel+'&' : '';
+        }
+        url += params;
+        this.props.search(url, this.props.page, labeled);
 
     }
 
@@ -125,6 +162,21 @@ export default class Filter extends React.Component {
                                 <DropdownItem onClick={this.selectLabel}>Aceptado</DropdownItem>
                                 <DropdownItem onClick={this.selectLabel}>Quizás</DropdownItem>
                                 <DropdownItem onClick={this.selectLabel}>Rechazado</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </div>
+                </div>
+                <div style={{display: 'flex', flexDirection: 'row', marginRight: '30px'}}>
+                    <input style={{marginRight: '8px', marginTop: '14px'}} type='checkbox' id='checkDB'/>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <strong style={{marginRight: '3.5%', marginTop: '8px'}}>BB.DD. </strong>
+                        <Dropdown isOpen={this.state.dropdownDBOpen} toggle={this.toggleDB}>
+                            <DropdownToggle caret>
+                                {this.state.dBSelected === "" ? "Eliga una base de datos" : this.state.dBSelected}
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                <DropdownItem onClick={this.selectDB}>Con etiquetado</DropdownItem>
+                                <DropdownItem onClick={this.selectDB}>Sin etiquetado</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>

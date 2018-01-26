@@ -47,7 +47,11 @@ export default class ProfileBig extends React.Component {
     }
 
     delete () {
-        this.props.delete(this.props.profile._id);
+        if (this.props.labeled) {
+            this.props.delete(this.props.profile._id, this.props.labeled);
+        } else {
+            this.props.delete(this.props.profile.searchId, this.props.labeled);
+        }
     }
 
     edit() {
@@ -145,6 +149,20 @@ export default class ProfileBig extends React.Component {
                             <button style={{height: '5%', width: '70%', borderRadius: '5px', fontSize: '14px'}} onClick={this.saveEdit}>Guardar</button>
                             <br/>
                             <button style={{height: '5%', width: '70%', borderRadius: '5px', fontSize: '14px'}} onClick={this.cancelEdit}>Cancelar</button>
+                        </div>
+                    </div>
+                );
+            } else if (!this.props.labeled) {
+                return(
+                    <div style={{display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginTop: '1%', borderStyle: 'solid', borderColor: 'orange', borderRadius: '5px'}}>
+                        <div style={{display: 'flex', flexDirection: 'column', marginLeft: '2%', width: '65%', fontFamily: 'Sans-serif'}}>
+                            <div><br/><strong>Nombre </strong>{this.props.profile.name}</div>
+                            <div><br/><strong>Identificador B.D. </strong>{this.props.profile.searchId}</div>
+                            <div><br/><strong>Identificador linkedIn </strong>{this.props.profile.linkedinId}</div>
+                        </div>
+                        <div style={{display: 'flex', flexDirection: 'column', width: '32%'}}>
+                            <br/>
+                            <button style={{height: '5%', width: '70%', borderRadius: '5px', fontSize: '14px'}} onClick={this.delete}>Borrar</button>
                         </div>
                     </div>
                 );

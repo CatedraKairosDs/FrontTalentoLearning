@@ -19,6 +19,8 @@ class App extends React.Component {
             visible: false,
             alerMessage: "",
             color: "primary",
+            url: "",
+            labeled: true,
         };
         this.onDismiss = this.onDismiss.bind(this);
         this.search = this.search.bind(this);
@@ -40,8 +42,8 @@ class App extends React.Component {
                       {this.state.alerMessage}
                   </Alert>
               <div style={{display: 'flex', flexDirection: 'row', width: '98%', height: '90%', marginLeft: '1%', overflowY: 'scroll'}}>
-                  <ProfileList profiles={this.state.profiles} onClick={this.onClick} nextPage={this.nextPage} previousPage={this.previousPage} page={this.state.page} totalPages={this.state.totalPages}/>
-                  <ProfileBig profile={this.state.profile} delete={this.delete} edit={this.edit} editEnabled={this.state.edit} saveEdit={this.saveEdit} cancelEdit={this.cancelEdit}/>
+                  <ProfileList labeled={this.state.labeled} pages={this.state.page} profiles={this.state.profiles} onClick={this.onClick} nextPage={this.nextPage} previousPage={this.previousPage} page={this.state.page} totalPages={this.state.totalPages}/>
+                  <ProfileBig labeled={this.state.labeled} profile={this.state.profile} delete={this.delete} edit={this.edit} editEnabled={this.state.edit} saveEdit={this.saveEdit} cancelEdit={this.cancelEdit}/>
               </div>
           </div>
       );
@@ -54,27 +56,30 @@ class App extends React.Component {
         });
     }
 
-    search(params, page) {
+    search(urlAux, page, labeled) {
         console.log(this.state.page, "En buscar");
         let pageAux = page ? page : this.state.page;
-        let url = "https://34.248.142.102/api-linkedin/v1/profiles" + params + "page="+pageAux;
+        let url = urlAux + "page="+pageAux;
         let req = new XMLHttpRequest();
         req.onreadystatechange = () => {
             if(req.readyState === 4) {
                 if(req.status === 200) {
-                    let profiles = JSON.parse(req.response).data;
+                    let profiles = labeled ? JSON.parse(req.response).data : JSON.parse(req.response).allUnlabeledProfiles;
                     if (profiles.length === 0) {
                         this.setState({
                           visible: true,
                           alerMessage: "No hay visitas con las opciones seleccionadas",
                           profiles: [],
+                          labeled: labeled,
                         });
                     } else {
-                        let totalPages = JSON.parse(req.response).meta.totalPages;
+                        let totalPages = labeled ? JSON.parse(req.response).meta.totalPages: '0';
                         this.setState({
                             profiles: profiles,
-                            params: params,
+                            url: url,
                             totalPages: totalPages,
+                            profile: "",
+                            labeled: labeled,
                         });
                     }
                 } else {
@@ -95,7 +100,7 @@ class App extends React.Component {
         this.setState({
             page: newPage,
         });
-        this.search(this.state.params, newPage);
+        this.search(this.state.url, newPage);
     }
 
     previousPage() {
@@ -103,7 +108,7 @@ class App extends React.Component {
       this.setState({
         page: newPage,
       });
-      this.search(this.state.params, newPage);
+      this.search(this.state.url, newPage);
     }
 
     onClick(profile) {
@@ -113,9 +118,14 @@ class App extends React.Component {
         });
     }
 
-    delete(id) {
+    delete(id, labeled) {
         let req = new XMLHttpRequest();
-        let url = "https://34.248.142.102/api-linkedin/v1/profiles/"+id;
+        let url;
+        if (labeled) {
+            url = "https://34.248.142.102/api-linkedin/v1/profiles/"+id;
+        } else {
+            url = "https://34.248.142.102/api-linkedin/v1/unlabeledProfiles/"+id
+        }
         req.onreadystatechange = () => {
             if(req.readyState === 4) {
                 if(req.status === 200) {
@@ -125,7 +135,7 @@ class App extends React.Component {
                         alerMessage: "Perfil borrado correctamente",
                         color: "success",
                     });
-                    this.search(this.state.params, this.state.page);
+                    this.search(this.state.url, this.state.page);
                 } else {
                     this.setState({
                         visible: true,
